@@ -1,0 +1,111 @@
+const CACHE_NAME = 'diary-v1.0';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './css/style.css',
+  './js/db.js',
+  './js/thoughts.js',
+  './js/tasks.js',
+  './js/app.js',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon.svg',
+  './icons/favicon.png',
+  './icons/apple-touch-icon.png'
+];
+
+// Handle direct clear cache request from Settings
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'CLEAR_CACHE') {
+    caches.keys().then((keys) => {
+      return Promise.all(keys.map(k => caches.delete(k)));
+    }).then(() => {
+      if (event.ports && event.ports[0]) {
+        event.ports[0].postMessage({ cleared: true });
+      }
+    });
+  }
+});
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.all(
+        ASSETS_TO_CACHE.map(async (url) => {
+          try {
+            const req = new Request(url, { cache: 'reload' });
+            const res = await fetch(req);
+            if (res && res.status === 200) {
+              await cache.put(url, res);
+            }
+          } catch (err) {
+            console.warn('Precache skip for asset:', url, err);
+          }
+        })
+      );
+    }).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  // HTML navigation: Network-first with cache fallback
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-cache' })
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put('./index.html', copy.clone());
+              cache.put('./', copy);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match('./index.html', { ignoreSearch: true });
+        })
+    );
+    return;
+  }
+
+  // Assets: Network-first with fallback to cache
+  event.respondWith(
+    fetch(event.request, { cache: 'no-cache' })
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request, { ignoreSearch: true })
+          .then((cachedResponse) => {
+            if (cachedResponse) return cachedResponse;
+            if (event.request.destination === 'document') {
+              return caches.match('./index.html', { ignoreSearch: true });
+            }
+          });
+      })
+  );
+});
