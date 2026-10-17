@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup modal backdrop listeners & keyboard
   setupModalDismiss();
 
+  // Setup desktop keyboard shortcuts (Alt+1/2/3, Alt+N, /, Ctrl+Enter, ?)
+  setupDesktopKeyboardShortcuts();
+
   // If first visit and no data, offer demo data
   await checkFirstVisitSeed();
 
@@ -51,7 +54,7 @@ function updateHeaderDate() {
 }
 
 /**
- * Tab Switching (Stable without bottom-nav jumping)
+ * Tab Switching (Stable without bottom-nav jumping & synced with desktop header)
  */
 function switchTab(tabName) {
   // 1. Defocus any active input to prevent iOS keyboard/viewport jumps
@@ -63,24 +66,38 @@ function switchTab(tabName) {
   const tasksView = document.getElementById('tabTasksView');
   const settingsView = document.getElementById('tabSettingsView');
 
+  // Mobile Bottom Nav items
   const navThoughts = document.getElementById('navBtnThoughts');
   const navTasks = document.getElementById('navBtnTasks');
   const navSettings = document.getElementById('navBtnSettings');
+
+  // Desktop Header Nav items
+  const deskThoughts = document.getElementById('deskNavThoughts');
+  const deskTasks = document.getElementById('deskNavTasks');
+  const deskSettings = document.getElementById('deskNavSettings');
+
   const headerAddBtn = document.getElementById('headerAddBtn');
 
-  // Hide all
+  // Hide all views
   if (thoughtsView) thoughtsView.style.display = 'none';
   if (tasksView) tasksView.style.display = 'none';
   if (settingsView) settingsView.style.display = 'none';
 
+  // Deactivate mobile buttons
   if (navThoughts) navThoughts.classList.remove('active');
   if (navTasks) navTasks.classList.remove('active');
   if (navSettings) navSettings.classList.remove('active');
+
+  // Deactivate desktop buttons
+  if (deskThoughts) deskThoughts.classList.remove('active');
+  if (deskTasks) deskTasks.classList.remove('active');
+  if (deskSettings) deskSettings.classList.remove('active');
 
   // Show active
   if (tabName === 'tasks') {
     if (tasksView) tasksView.style.display = 'block';
     if (navTasks) navTasks.classList.add('active');
+    if (deskTasks) deskTasks.classList.add('active');
     if (headerAddBtn) {
       headerAddBtn.style.display = 'inline-flex';
       headerAddBtn.onclick = () => TasksModule.openNewTaskModal();
@@ -93,12 +110,14 @@ function switchTab(tabName) {
   } else if (tabName === 'settings') {
     if (settingsView) settingsView.style.display = 'block';
     if (navSettings) navSettings.classList.add('active');
+    if (deskSettings) deskSettings.classList.add('active');
     if (headerAddBtn) headerAddBtn.style.display = 'none';
   } else {
     // Default: thoughts
     tabName = 'thoughts';
     if (thoughtsView) thoughtsView.style.display = 'block';
     if (navThoughts) navThoughts.classList.add('active');
+    if (deskThoughts) deskThoughts.classList.add('active');
     if (headerAddBtn) {
       headerAddBtn.style.display = 'inline-flex';
       headerAddBtn.onclick = () => ThoughtsModule.openNewThoughtComposer();
@@ -239,6 +258,111 @@ function setupModalDismiss() {
       document.querySelectorAll('.modal-overlay.active').forEach(overlay => {
         closeModal(overlay.id);
       });
+    }
+  });
+}
+
+/**
+ * Desktop Keyboard Shortcuts Modal
+ */
+function openShortcutsModal() {
+  openModal('shortcutsModal');
+}
+window.openShortcutsModal = openShortcutsModal;
+
+function closeShortcutsModal() {
+  closeModal('shortcutsModal');
+}
+window.closeShortcutsModal = closeShortcutsModal;
+
+/**
+ * Global Desktop Keyboard Shortcuts
+ * Alt+1/2/3: Tabs | Alt+N: New | /: Search/Add | Ctrl+Enter: Save | ?: Help
+ */
+function setupDesktopKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    const isInputActive = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) ||
+                          document.activeElement?.isContentEditable;
+
+    // 1. Ctrl+Enter or Cmd+Enter to SAVE in modals (works even when typing inside textarea/input)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      const thoughtModal = document.getElementById('thoughtComposeModal');
+      const taskModal = document.getElementById('taskComposeModal');
+
+      if (thoughtModal && thoughtModal.classList.contains('active')) {
+        e.preventDefault();
+        ThoughtsModule.handleSaveThought();
+        return;
+      }
+      if (taskModal && taskModal.classList.contains('active')) {
+        e.preventDefault();
+        TasksModule.handleSaveTask();
+        return;
+      }
+    }
+
+    // 2. Alt + 1, Alt + 2, Alt + 3 for tab switching
+    if (e.altKey && !e.ctrlKey && !e.metaKey) {
+      if (e.key === '1') {
+        e.preventDefault();
+        switchTab('thoughts');
+        return;
+      } else if (e.key === '2') {
+        e.preventDefault();
+        switchTab('tasks');
+        return;
+      } else if (e.key === '3') {
+        e.preventDefault();
+        switchTab('settings');
+        return;
+      } else if (e.key.toLowerCase() === 'n') {
+        // Alt + N: New Thought or New Task depending on current tab
+        e.preventDefault();
+        const activeTab = localStorage.getItem('diary_active_tab') || 'thoughts';
+        if (activeTab === 'tasks') {
+          TasksModule.openNewTaskModal();
+        } else {
+          ThoughtsModule.openNewThoughtComposer();
+        }
+        return;
+      }
+    }
+
+    // If typing in an input/textarea/editable, skip single key shortcuts
+    if (isInputActive) {
+      return;
+    }
+
+    // 3. "/" to search thoughts or quick add task
+    if (e.key === '/') {
+      const activeTab = localStorage.getItem('diary_active_tab') || 'thoughts';
+      if (activeTab === 'thoughts') {
+        const searchInput = document.getElementById('thoughtsSearchInput');
+        if (searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      } else if (activeTab === 'tasks') {
+        const quickInput = document.getElementById('taskQuickInput');
+        if (quickInput) {
+          e.preventDefault();
+          quickInput.focus();
+        }
+      }
+      return;
+    }
+
+    // 4. "?" to toggle shortcuts help modal
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      e.preventDefault();
+      const shortcutsModal = document.getElementById('shortcutsModal');
+      if (shortcutsModal && shortcutsModal.classList.contains('active')) {
+        closeShortcutsModal();
+      } else {
+        openShortcutsModal();
+      }
+      return;
     }
   });
 }
