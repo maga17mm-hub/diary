@@ -2,24 +2,24 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Diary — Дневник Мыслей & Задачи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Мысли Заремки — Дневник & Задачи</title>
 
   <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#040506">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Diary">
-  <meta name="application-name" content="Diary">
-  <meta name="description" content="Личный дневник мыслей и планировщик задач на день и неделю в стиле iOS">
+  <meta name="apple-mobile-web-app-title" content="Мысли Заремки">
+  <meta name="application-name" content="Мысли Заремки">
+  <meta name="description" content="Личный дневник мыслей и планировщик задач для самой невероятной девушки на свете">
 
   <!-- Icons -->
   <link rel="icon" type="image/png" href="./icons/favicon.png">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./css/style.css?v=1.0">
+  <link rel="stylesheet" href="./css/style.css?v=1.1">
 
   <!-- Immediate Theme Pre-loader -->
   <script>
@@ -46,12 +46,25 @@
             </svg>
           </div>
           <div class="brand-text">
-            <h1>Diary</h1>
+            <h1>Мысли Заремки</h1>
             <span id="headerDateText" class="brand-subtitle">Сегодня</span>
           </div>
         </div>
 
         <div class="header-actions">
+          <!-- Profile & Cloud Sync Button -->
+          <button type="button" id="headerProfileBtn" class="header-profile-btn" onclick="AuthModule.openProfileModal()" aria-label="Профиль">
+            <span id="headerProfileAvatar" class="profile-avatar-circle">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <span id="headerProfileLabel">Войти</span>
+            <span id="headerProfileSyncDot" class="profile-sync-indicator" style="display: none;"></span>
+          </button>
+
+          <!-- Add Button -->
           <button type="button" id="headerAddBtn" class="btn-header-add" onclick="ThoughtsModule.openNewThoughtComposer()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -214,15 +227,52 @@
     </div>
 
     <!-- ======================================================================
-         TAB 3: НАСТРОЙКИ (SETTINGS & THEMES)
+         TAB 3: НАСТРОЙКИ (SETTINGS, CLOUD & THEMES)
          ====================================================================== -->
     <div id="tabSettingsView" class="tab-view" style="display: none;">
       <div class="page-heading">
         <div>
           <h2 class="page-title">Настройки</h2>
-          <p class="page-subtitle">Темы оформления, обновление приложения и данные</p>
+          <p class="page-subtitle">Аккаунт, синхронизация, темы и обновление приложения</p>
         </div>
       </div>
+
+      <!-- Profile & Cloud Sync Card -->
+      <section class="settings-section-card" id="settingsProfileCard">
+        <h3 class="settings-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span id="settingsProfileTitle">Профиль и синхронизация</span>
+        </h3>
+        <p class="settings-section-subtitle" id="settingsProfileDesc">
+          Создайте аккаунт или войдите, чтобы ваши мысли и задачи автоматически сохранялись и открывались на телефоне и компьютере.
+        </p>
+        <button type="button" class="btn btn-secondary btn-md" id="settingsProfileBtn" onclick="AuthModule.openProfileModal()" style="width: 100%; justify-content: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Войти или создать аккаунт</span>
+        </button>
+      </section>
+
+      <!-- Dedication Card -->
+      <section class="settings-section-card" style="border-color: rgba(255, 99, 99, 0.35);">
+        <h3 class="settings-section-title" style="color: var(--brand);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span>Послание для Заремки</span>
+        </h3>
+        <p class="settings-section-subtitle">
+          Открыть особенное окно с посвящением в любой момент.
+        </p>
+        <button type="button" class="btn btn-secondary btn-md" onclick="openDedicationModal()" style="width: 100%; justify-content: center; gap: 8px; border-color: rgba(255, 99, 99, 0.4); color: var(--brand);">
+          <span>Показать послание ❤️</span>
+        </button>
+      </section>
 
       <!-- Theme Switcher Card -->
       <section class="settings-section-card">
@@ -355,11 +405,11 @@
         </button>
 
         <div style="display: flex; gap: 12px; margin-top: 14px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap;">
-          <span>Версия: <strong style="color: var(--text-secondary);">1.0.0</strong></span>
+          <span>Версия: <strong style="color: var(--text-secondary);">1.1.0</strong></span>
           <span>·</span>
           <span>PWA: <strong style="color: var(--win);">Активно</strong></span>
           <span>·</span>
-          <span>База: <strong style="color: var(--win);">IndexedDB</strong></span>
+          <span>Облако: <strong style="color: var(--win);">GitHub Vault</strong></span>
         </div>
       </section>
 
@@ -371,7 +421,7 @@
             <polyline points="17 21 17 13 7 13 7 21"></polyline>
             <polyline points="7 3 7 8 15 8"></polyline>
           </svg>
-          <span>Ваши данные</span>
+          <span>Резервная копия данных</span>
         </h3>
         <p class="settings-section-subtitle">
           Сохраняйте все мысли и задачи в отдельный файл или восстанавливайте их на любом устройстве.
@@ -430,6 +480,150 @@
       </button>
     </div>
   </nav>
+
+  <!-- ==========================================================================
+       DEDICATION POPUP MODAL (Посвящение Заремке - по центру экрана)
+       ========================================================================== -->
+  <div id="dedicationModal" class="modal-overlay centered-modal" aria-hidden="true">
+    <div class="dedication-card">
+      <button type="button" class="dedication-close-x" onclick="closeDedicationModal()" aria-label="Закрыть">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="dedication-heart-icon">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="#ff6363" stroke="#ff6363" stroke-width="1.5">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </div>
+      <h3 class="dedication-title">Приложение посвящено самой невероятной девушке на свете ❤️</h3>
+      <p class="dedication-desc">Место для твоих искренних мыслей, смелых планов, идей и вдохновения каждый день.</p>
+      <button type="button" class="btn btn-primary btn-md dedication-close-btn" onclick="closeDedicationModal()">
+        <span>Открыть дневник ✨</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       PROFILE & CLOUD SYNC MODAL (Вход, Регистрация, Синхронизация ПК <-> Телефон)
+       ========================================================================== -->
+  <div id="profileModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-sheet">
+      <div class="modal-sheet-handle"></div>
+      <div class="modal-header">
+        <h3 class="modal-title">Профиль и синхронизация</h3>
+        <button type="button" class="btn-icon" onclick="AuthModule.closeProfileModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Guest View: Login & Register tabs -->
+        <div id="authGuestContainer">
+          <div class="auth-nav-tabs">
+            <button type="button" id="authTabLoginBtn" class="auth-nav-tab active" onclick="AuthModule.switchAuthTab('login')">Вход (с компьютера/телефона)</button>
+            <button type="button" id="authTabRegBtn" class="auth-nav-tab" onclick="AuthModule.switchAuthTab('register')">Создать аккаунт</button>
+          </div>
+
+          <!-- LOGIN FORM -->
+          <form id="authLoginForm" onsubmit="AuthModule.handleLoginSubmit(event)">
+            <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+              Введите ваш <strong>Код синхронизации (Sync Key)</strong> и пароль, чтобы мгновенно загрузить все записи и задачи с телефона на компьютер.
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="loginSyncKey">Код синхронизации (Sync Key)</label>
+              <input type="text" id="loginSyncKey" class="form-input" placeholder="Например: MZ-xxxx..." autocomplete="off" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="loginPassword">Пароль</label>
+              <input type="password" id="loginPassword" class="form-input" placeholder="Ваш пароль от профиля" required>
+            </div>
+            <button type="submit" id="loginSubmitBtn" class="btn btn-primary btn-md" style="width: 100%; justify-content: center; margin-top: 10px;">
+              <span>Войти в аккаунт</span>
+            </button>
+          </form>
+
+          <!-- REGISTER FORM -->
+          <form id="authRegForm" style="display: none;" onsubmit="AuthModule.handleRegisterSubmit(event)">
+            <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+              Создайте аккаунт, чтобы получить личный <strong>Код синхронизации</strong>. Ваши мысли и задачи будут надёжно сохранены в защищённом облаке.
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="regName">Ваше имя</label>
+              <input type="text" id="regName" class="form-input" value="Заремка" placeholder="Как вас зовут" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmail">Email</label>
+              <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regPassword">Придумайте пароль</label>
+              <input type="password" id="regPassword" class="form-input" placeholder="Минимум 4 символа" required>
+            </div>
+            <button type="submit" id="regSubmitBtn" class="btn btn-primary btn-md" style="width: 100%; justify-content: center; margin-top: 10px;">
+              <span>Создать аккаунт и включить синхронизацию</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Logged-in Profile View -->
+        <div id="authProfileContainer" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+            <div class="profile-avatar-circle logged-in" style="width: 50px; height: 50px; font-size: 1.3rem;">
+              <span id="profModalAvatarInitial">З</span>
+            </div>
+            <div>
+              <h4 id="profModalName" style="font-size: 1.15rem; font-weight: 700;">Заремка</h4>
+              <p id="profModalEmail" style="font-size: 0.82rem; color: var(--text-secondary);">—</p>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 0.75rem; color: var(--win);">
+                <span class="profile-sync-indicator"></span>
+                <span>Облачная синхронизация активна</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Ваш код синхронизации для входа на компьютере</label>
+            <div class="sync-key-box">
+              <span id="profModalSyncKey" class="sync-key-text">—</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AuthModule.copySyncKeyToClipboard()">
+                <span>Копировать</span>
+              </button>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4;">
+              Скопируйте этот код и введите его вместе с паролем при входе на компьютере — все ваши мысли и задачи сразу появятся там.
+            </p>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Данные на устройстве:</span>
+              <strong id="profModalStats" style="color: var(--text-primary);">—</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Последняя синхронизация:</span>
+              <span id="profModalLastSync" style="color: var(--text-primary);">Только что</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button type="button" class="btn btn-primary btn-md" onclick="AuthModule.syncWithCloud(false)" style="width: 100%; justify-content: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Синхронизировать сейчас</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="AuthModule.handleLogout()" style="width: 100%; justify-content: center; color: var(--loss);">
+              <span>Выйти из аккаунта на этом устройстве</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ==========================================================================
        MODAL 1: THOUGHT COMPOSE / EDIT MODAL
@@ -566,7 +760,7 @@
 
         <div class="form-group">
           <label class="form-label" for="taskTagInput">Проект / Категория</label>
-          <input type="text" id="taskTagInput" class="form-input" placeholder="Например: Работа, Личное, Обучение" autocomplete="off">
+          <input type="text" id="taskTagInput" class="form-input" placeholder="Например: Учёба, Личное, Работа" autocomplete="off">
         </div>
 
         <div class="form-group">
@@ -593,10 +787,11 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- Scripts -->
-  <script src="./js/db.js?v=1.0"></script>
-  <script src="./js/thoughts.js?v=1.0"></script>
-  <script src="./js/tasks.js?v=1.0"></script>
-  <script src="./js/app.js?v=1.0"></script>
+  <script src="./js/db.js?v=1.1"></script>
+  <script src="./js/auth.js?v=1.1"></script>
+  <script src="./js/thoughts.js?v=1.1"></script>
+  <script src="./js/tasks.js?v=1.1"></script>
+  <script src="./js/app.js?v=1.1"></script>
 
 </body>
 </html>
