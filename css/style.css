@@ -1500,3 +1500,264 @@ body.modal-open .bottom-nav {
   from { opacity: 1; }
   to { opacity: 0; transform: translateY(-6px); }
 }
+
+/* ==========================================================================
+   KEYBOARD SHORTCUTS & DESKTOP MODAL COMPONENTS
+   ========================================================================== */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: 5px;
+  box-shadow: 0 1px 0 var(--border-medium);
+}
+
+.shortcuts-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-modal);
+  border: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-modal);
+  border-radius: 22px;
+  padding: 24px;
+  position: relative;
+  animation: modalDesktopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalDesktopIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.shortcut-desc {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* Header desktop elements - Hidden on mobile */
+.desktop-nav-tabs {
+  display: none;
+}
+.header-shortcuts-btn {
+  display: none;
+}
+.desktop-tasks-tip {
+  display: none;
+}
+
+/* ==========================================================================
+   DESKTOP OPTIMIZATION (min-width: 769px)
+   ========================================================================== */
+@media (min-width: 769px) {
+  /* 1. Body & Container */
+  body {
+    padding-bottom: 40px !important;
+  }
+  
+  .app-container {
+    max-width: 1140px;
+    padding: 0 32px;
+  }
+
+  /* 2. Hide Mobile Bottom Navigation Bar */
+  .bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* 3. Header Desktop Navigation Tabs */
+  .desktop-nav-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-card);
+    padding: 4px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .desktop-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+
+  .desktop-nav-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
+  }
+
+  .desktop-nav-btn.active {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border-color: var(--border-medium);
+    box-shadow: var(--shadow-card);
+  }
+
+  .desktop-nav-badge {
+    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    background: var(--brand);
+    color: #ffffff;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* 4. Desktop Header Shortcuts Button */
+  .header-shortcuts-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+  .header-shortcuts-btn:hover {
+    border-color: var(--border-medium);
+    background: var(--bg-card-hover);
+  }
+  .header-shortcuts-btn kbd {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 0;
+  }
+  .header-shortcuts-btn:hover kbd {
+    color: var(--text-primary);
+  }
+
+  /* 5. 3-Column Grid for Thoughts */
+  .thoughts-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px;
+  }
+
+  /* 6. 2-Column Productivity Layout for Tasks */
+  .tasks-layout-desktop {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .tasks-sidebar-desktop {
+    position: sticky;
+    top: 86px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tasks-sidebar-desktop .tasks-horizon-bar {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    margin-bottom: 0;
+  }
+
+  .tasks-sidebar-desktop .tasks-horizon-btn {
+    justify-content: space-between;
+    padding: 10px 14px;
+    width: 100%;
+    border-radius: var(--radius-md);
+  }
+
+  .desktop-tasks-tip {
+    display: block;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .desktop-tasks-tip .tip-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .desktop-tasks-tip .tip-title svg {
+    color: var(--brand);
+  }
+  .desktop-tasks-tip kbd {
+    font-size: 0.74rem;
+  }
+
+  /* 7. Settings Wide Screen Ergonomics */
+  .theme-picker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  /* 8. Modern Custom Scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-smoke);
+  }
+}
