@@ -75,6 +75,7 @@ function updateTasksBadges() {
   const badgeAll = document.getElementById('horizonBadgeAll');
   const badgeDone = document.getElementById('horizonBadgeDone');
   const navBadge = document.getElementById('navTasksBadge');
+  const desktopBadge = document.getElementById('desktopTasksBadge');
 
   if (badgeToday) badgeToday.textContent = todayTasks.length;
   if (badgeWeek) badgeWeek.textContent = weekTasks.length;
@@ -87,6 +88,15 @@ function updateTasksBadges() {
       navBadge.style.display = 'block';
     } else {
       navBadge.style.display = 'none';
+    }
+  }
+
+  if (desktopBadge) {
+    if (todayTasks.length > 0) {
+      desktopBadge.textContent = todayTasks.length;
+      desktopBadge.style.display = 'inline-block';
+    } else {
+      desktopBadge.style.display = 'none';
     }
   }
 }
