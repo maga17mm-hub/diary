@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png?v=2">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="./css/style.css?v=1.1">
+  <link rel="stylesheet" href="./css/style.css?v=1.2">
 
   <!-- Immediate Theme Pre-loader -->
   <script>
@@ -53,7 +53,38 @@
           </div>
         </div>
 
+        <!-- Desktop Navigation Tabs (Visible on screens >= 769px) -->
+        <nav class="desktop-nav-tabs" aria-label="Десктопная навигация">
+          <button type="button" class="desktop-nav-btn active" id="deskNavThoughts" onclick="switchTab('thoughts')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span>Мысли</span>
+          </button>
+          <button type="button" class="desktop-nav-btn" id="deskNavTasks" onclick="switchTab('tasks')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Задачи</span>
+            <span id="desktopTasksBadge" class="desktop-nav-badge" style="display: none;">0</span>
+          </button>
+          <button type="button" class="desktop-nav-btn" id="deskNavSettings" onclick="switchTab('settings')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Настройки</span>
+          </button>
+        </nav>
+
         <div class="header-actions">
+          <!-- Keyboard Shortcuts Button (Desktop) -->
+          <button type="button" id="headerShortcutsBtn" class="header-shortcuts-btn" onclick="openShortcutsModal()" title="Горячие клавиши (?)">
+            <kbd>?</kbd>
+          </button>
+
           <!-- Profile & Cloud Sync Button -->
           <button type="button" id="headerProfileBtn" class="header-profile-btn" onclick="AuthModule.openProfileModal()" aria-label="Профиль">
             <span id="headerProfileAvatar" class="profile-avatar-circle">
@@ -161,70 +192,88 @@
         </div>
       </div>
 
-      <!-- Horizon Switcher Bar -->
-      <div class="tasks-horizon-bar">
-        <button type="button" class="tasks-horizon-btn active" data-horizon="today" onclick="TasksModule.setTaskHorizon('today')">
-          <span>Сегодня</span>
-          <span id="horizonBadgeToday" class="tasks-horizon-badge">0</span>
-        </button>
-        <button type="button" class="tasks-horizon-btn" data-horizon="week" onclick="TasksModule.setTaskHorizon('week')">
-          <span>Неделя</span>
-          <span id="horizonBadgeWeek" class="tasks-horizon-badge">0</span>
-        </button>
-        <button type="button" class="tasks-horizon-btn" data-horizon="all" onclick="TasksModule.setTaskHorizon('all')">
-          <span>Все</span>
-          <span id="horizonBadgeAll" class="tasks-horizon-badge">0</span>
-        </button>
-        <button type="button" class="tasks-horizon-btn" data-horizon="done" onclick="TasksModule.setTaskHorizon('done')">
-          <span>Готово</span>
-          <span id="horizonBadgeDone" class="tasks-horizon-badge">0</span>
-        </button>
-      </div>
-
-      <!-- Daily Progress Card -->
-      <div class="task-progress-card">
-        <div class="task-progress-top">
-          <div id="todayProgressTitle" class="task-progress-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--win);">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Прогресс дня</span>
+      <!-- Tasks Desktop Layout (Sidebar + Main List) -->
+      <div class="tasks-layout-desktop">
+        <!-- Left Sidebar: Horizons & Daily Stats -->
+        <aside class="tasks-sidebar-desktop">
+          <!-- Horizon Switcher Bar -->
+          <div class="tasks-horizon-bar">
+            <button type="button" class="tasks-horizon-btn active" data-horizon="today" onclick="TasksModule.setTaskHorizon('today')">
+              <span>Сегодня</span>
+              <span id="horizonBadgeToday" class="tasks-horizon-badge">0</span>
+            </button>
+            <button type="button" class="tasks-horizon-btn" data-horizon="week" onclick="TasksModule.setTaskHorizon('week')">
+              <span>Неделя</span>
+              <span id="horizonBadgeWeek" class="tasks-horizon-badge">0</span>
+            </button>
+            <button type="button" class="tasks-horizon-btn" data-horizon="all" onclick="TasksModule.setTaskHorizon('all')">
+              <span>Все</span>
+              <span id="horizonBadgeAll" class="tasks-horizon-badge">0</span>
+            </button>
+            <button type="button" class="tasks-horizon-btn" data-horizon="done" onclick="TasksModule.setTaskHorizon('done')">
+              <span>Готово</span>
+              <span id="horizonBadgeDone" class="tasks-horizon-badge">0</span>
+            </button>
           </div>
-          <span id="todayProgressCount" class="task-progress-count">0 из 0</span>
-        </div>
-        <div class="task-progress-bar-bg">
-          <div id="todayProgressFill" class="task-progress-bar-fill"></div>
-        </div>
-      </div>
 
-      <!-- Inline Quick-Add Input -->
-      <div class="task-quick-add">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--text-muted);">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="16"></line>
-          <line x1="8" y1="12" x2="16" y2="12"></line>
-        </svg>
-        <input type="text" id="taskQuickInput" placeholder="Быстро добавить задачу... (нажмите Enter)" autocomplete="off">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="TasksModule.openNewTaskModal()">
-          <span>Параметры</span>
-        </button>
-      </div>
+          <!-- Daily Progress Card -->
+          <div class="task-progress-card">
+            <div class="task-progress-top">
+              <div id="todayProgressTitle" class="task-progress-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--win);">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Прогресс дня</span>
+              </div>
+              <span id="todayProgressCount" class="task-progress-count">0 из 0</span>
+            </div>
+            <div class="task-progress-bar-bg">
+              <div id="todayProgressFill" class="task-progress-bar-fill"></div>
+            </div>
+          </div>
 
-      <!-- Tasks List -->
-      <div id="tasksListContainer" class="task-items-list">
-        <!-- Dynamically populated -->
-      </div>
+          <!-- Desktop Quick Tips Card -->
+          <div class="desktop-tasks-tip">
+            <div class="tip-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              <span>Горячие клавиши</span>
+            </div>
+            <p>Нажмите <kbd>/</kbd> для быстрого ввода задачи. Нажмите <kbd>Alt</kbd>+<kbd>N</kbd> для задачи с дедлайном и приоритетом.</p>
+          </div>
+        </aside>
 
-      <!-- Empty State -->
-      <div id="tasksEmptyState" class="empty-state" style="display: none;">
-        <div class="empty-state-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polyline points="9 11 12 14 22 4"></polyline>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-          </svg>
+        <!-- Right Main: Quick Add & Tasks List -->
+        <div class="tasks-main-desktop">
+          <!-- Inline Quick-Add Input -->
+          <div class="task-quick-add">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--text-muted);">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            <input type="text" id="taskQuickInput" placeholder="Быстро добавить задачу... (нажмите Enter)" autocomplete="off">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="TasksModule.openNewTaskModal()">
+              <span>Параметры</span>
+            </button>
+          </div>
+
+          <!-- Tasks List -->
+          <div id="tasksListContainer" class="task-items-list">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="tasksEmptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </div>
+            <div id="tasksEmptyTitle" class="empty-state-title">Все задачи выполнены</div>
+            <div id="tasksEmptyDesc" class="empty-state-desc">Вы можете добавить новую задачу через поле выше.</div>
+          </div>
         </div>
-        <div id="tasksEmptyTitle" class="empty-state-title">Все задачи выполнены</div>
-        <div id="tasksEmptyDesc" class="empty-state-desc">Вы можете добавить новую задачу через поле выше.</div>
       </div>
     </div>
 
@@ -407,7 +456,7 @@
         </button>
 
         <div style="display: flex; gap: 12px; margin-top: 14px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap;">
-          <span>Версия: <strong style="color: var(--text-secondary);">1.1.0</strong></span>
+          <span>Версия: <strong style="color: var(--text-secondary);">1.2.0 (Desktop & Mobile)</strong></span>
           <span>·</span>
           <span>PWA: <strong style="color: var(--win);">Активно</strong></span>
           <span>·</span>
@@ -785,15 +834,80 @@
     </div>
   </div>
 
+  <!-- ==========================================================================
+       MODAL 4: KEYBOARD SHORTCUTS MODAL (Desktop Command Center)
+       ========================================================================== -->
+  <div id="shortcutsModal" class="modal-overlay centered-modal" aria-hidden="true">
+    <div class="shortcuts-card">
+      <div class="modal-header" style="border: none; padding-bottom: 0;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--brand);">
+            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+            <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10"></path>
+          </svg>
+          <h3 class="modal-title">Горячие клавиши</h3>
+        </div>
+        <button type="button" class="btn-icon" onclick="closeModal('shortcutsModal')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 16px 0; line-height: 1.5;">
+        Управляйте дневником и задачами с клавиатуры вашего компьютера как в профессиональном командном центре.
+      </p>
+
+      <div class="shortcuts-grid">
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Переключить на «Мысли»</span>
+          <div class="shortcut-keys"><kbd>Alt</kbd> + <kbd>1</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Переключить на «Задачи»</span>
+          <div class="shortcut-keys"><kbd>Alt</kbd> + <kbd>2</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Переключить на «Настройки»</span>
+          <div class="shortcut-keys"><kbd>Alt</kbd> + <kbd>3</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Новая запись / мысль</span>
+          <div class="shortcut-keys"><kbd>Alt</kbd> + <kbd>N</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Поиск мыслей / Быстрый ввод задач</span>
+          <div class="shortcut-keys"><kbd>/</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Сохранить запись или задачу</span>
+          <div class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Закрыть окно / Отмена</span>
+          <div class="shortcut-keys"><kbd>Esc</kbd></div>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Открыть эту справку</span>
+          <div class="shortcut-keys"><kbd>?</kbd></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; text-align: center;">
+        <button type="button" class="btn btn-primary btn-md" onclick="closeModal('shortcutsModal')" style="width: 100%; justify-content: center;">
+          <span>Понятно, спасибо</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- Scripts -->
-  <script src="./js/db.js?v=1.1"></script>
-  <script src="./js/auth.js?v=1.1"></script>
-  <script src="./js/thoughts.js?v=1.1"></script>
-  <script src="./js/tasks.js?v=1.1"></script>
-  <script src="./js/app.js?v=1.1"></script>
+  <script src="./js/db.js?v=1.2"></script>
+  <script src="./js/auth.js?v=1.2"></script>
+  <script src="./js/thoughts.js?v=1.2"></script>
+  <script src="./js/tasks.js?v=1.2"></script>
+  <script src="./js/app.js?v=1.2"></script>
 
 </body>
 </html>
