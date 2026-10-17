@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Diary & Planner - Main Application Controller
+ * Мысли Заремки - Main Application Controller
  * Handles tabs, themes, modals, cache reset, service worker, import/export
  * ============================================================================
  */
@@ -29,7 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupModalDismiss();
 
   // If first visit and no data, offer demo data
-  checkFirstVisitSeed();
+  await checkFirstVisitSeed();
+
+  // Show Dedication popup on app entry (Exact user request)
+  setTimeout(() => {
+    openDedicationModal();
+  }, 250);
 });
 
 /**
@@ -46,9 +51,14 @@ function updateHeaderDate() {
 }
 
 /**
- * Tab Switching
+ * Tab Switching (Stable without bottom-nav jumping)
  */
 function switchTab(tabName) {
+  // 1. Defocus any active input to prevent iOS keyboard/viewport jumps
+  if (document.activeElement && document.activeElement.blur) {
+    document.activeElement.blur();
+  }
+
   const thoughtsView = document.getElementById('tabThoughtsView');
   const tasksView = document.getElementById('tabTasksView');
   const settingsView = document.getElementById('tabSettingsView');
@@ -101,8 +111,26 @@ function switchTab(tabName) {
   }
 
   localStorage.setItem('diary_active_tab', tabName);
-  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // Soft scroll to top without abrupt jarring if user was scrolled down
+  if (window.scrollY > 40) {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
 }
+window.switchTab = switchTab;
+
+/**
+ * Dedication Modal Controller
+ */
+function openDedicationModal() {
+  openModal('dedicationModal');
+}
+window.openDedicationModal = openDedicationModal;
+
+function closeDedicationModal() {
+  closeModal('dedicationModal');
+}
+window.closeDedicationModal = closeDedicationModal;
 
 /**
  * Apply App Theme
@@ -179,7 +207,8 @@ function openModal(modalId) {
   if (!modal) return;
 
   modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
+  document.documentElement.classList.add('modal-open');
 }
 
 function closeModal(modalId) {
@@ -187,7 +216,11 @@ function closeModal(modalId) {
   if (!modal) return;
 
   modal.classList.remove('active');
-  document.body.style.overflow = '';
+  const anyOpen = document.querySelectorAll('.modal-overlay.active').length > 0;
+  if (!anyOpen) {
+    document.body.classList.remove('modal-open');
+    document.documentElement.classList.remove('modal-open');
+  }
 }
 
 function setupModalDismiss() {
@@ -244,7 +277,7 @@ async function exportDataJson() {
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = `diary_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `zaremka_diary_backup_${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -296,17 +329,17 @@ async function loadSampleDemoData() {
     },
     {
       id: 'demo_th_2',
-      title: 'Идея нового проекта и структуры',
-      content: 'Сделать дневник максимально быстрым: чтобы добавление мысли занимало ровно 3 секунды. Никаких перегруженных меню.\n\nКатегории мыслей:\n* **Идеи** — быстрые вспышки мыслей\n* **Рефлексия** — итоги дня и выводы\n* **Инсайты** — цитаты и выжимка из прочитанного',
+      title: 'Уютный вечер и новые планы',
+      content: 'Заварить вкусный чай, включить спокойную музыку и распланировать неделю без спешки.\n\nГлавные ориентиры:\n* **Забота о себе** — сон и прогулки\n* **Вдохновение** — чтение и творчество\n* **Шаг за шагом** — к большим целям',
       tag: 'Идеи',
-      mood: '💡',
+      mood: '✨',
       pinned: true,
       createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
     },
     {
       id: 'demo_th_3',
-      title: 'Вечерняя рефлексия',
-      content: 'День прошёл продуктивно. Главный вывод: браться за сложные задачи первым делом утром, пока мозг свеж и полон энергии.',
+      title: 'Маленькие радости каждого дня',
+      content: 'Каждый день несёт что-то прекрасное, если вовремя остановиться и заметить это.',
       tag: 'Рефлексия',
       mood: '🧘',
       pinned: false,
@@ -314,24 +347,14 @@ async function loadSampleDemoData() {
     }
   ];
 
-  const todayStr = TasksModule ? new Date().toISOString().slice(0, 10) : '';
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   const sampleTasks = [
     {
       id: 'demo_tk_1',
-      title: 'Провести ревизию планов на неделю',
-      notes: 'Выписать топ-3 приоритета и убрать второстепенную суету',
+      title: 'Выпить утренний кофе в тишине и улыбнуться новому дню',
+      notes: 'Настроиться на прекрасный день',
       priority: 'p1',
-      dueDate: todayStr,
-      horizon: 'today',
-      completed: false,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'demo_tk_2',
-      title: '30 минут чтения книги',
-      notes: 'Выписать 2 ключевые мысли в раздел «Инсайты»',
-      priority: 'p2',
       dueDate: todayStr,
       horizon: 'today',
       completed: true,
@@ -339,9 +362,19 @@ async function loadSampleDemoData() {
       createdAt: new Date().toISOString()
     },
     {
+      id: 'demo_tk_2',
+      title: '30 минут приятного чтения',
+      notes: 'Выписать понравившуюся цитату во вкладку «Мысли»',
+      priority: 'p2',
+      dueDate: todayStr,
+      horizon: 'today',
+      completed: false,
+      createdAt: new Date().toISOString()
+    },
+    {
       id: 'demo_tk_3',
-      title: 'Прогулка на свежем воздухе без телефона',
-      notes: 'Дать мыслям улечься',
+      title: 'Прогулка на свежем воздухе',
+      notes: 'Слушать любимую музыку или звуки природы',
       priority: 'p3',
       dueDate: todayStr,
       horizon: 'today',
@@ -350,8 +383,8 @@ async function loadSampleDemoData() {
     },
     {
       id: 'demo_tk_4',
-      title: 'Составить план тренировок на следующую неделю',
-      notes: '3 силовые тренировки + 1 день растяжки',
+      title: 'Составить список желаний и планов на следующую неделю',
+      notes: 'Мечтать смело и без ограничений',
       priority: 'p2',
       dueDate: null,
       horizon: 'week',
@@ -360,12 +393,12 @@ async function loadSampleDemoData() {
     }
   ];
 
-  for (const t of sampleThoughts) await DiaryDB.saveThought(t);
-  for (const k of sampleTasks) await DiaryDB.saveTask(k);
+  for (const t of sampleThoughts) await DiaryDB.saveThought(t, true);
+  for (const k of sampleTasks) await DiaryDB.saveTask(k, true);
 
   await ThoughtsModule.loadAndRenderThoughts();
   await TasksModule.loadAndRenderTasks();
-  showToast('Демо-данные успешно загружены 🚀');
+  showToast('Примеры успешно загружены ✨');
 }
 
 async function checkFirstVisitSeed() {
@@ -382,7 +415,6 @@ async function checkFirstVisitSeed() {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then((reg) => {
-      // Check for updates periodically
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         if (newWorker) {
