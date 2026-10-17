@@ -1,49 +1,115 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
+    <!-- Background Gradient -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0c10" />
-      <stop offset="100%" stop-color="#040506" />
+      <stop offset="0%" stop-color="#141620" />
+      <stop offset="100%" stop-color="#06070a" />
     </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff7a7a" />
-      <stop offset="100%" stop-color="#ff5252" />
+
+    <!-- Cover Gradient -->
+    <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c202c" />
+      <stop offset="100%" stop-color="#0e1016" />
     </linearGradient>
-    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2a2d34" />
-      <stop offset="100%" stop-color="#181a1f" />
+
+    <!-- Spine Gradient -->
+    <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff4b6e" />
+      <stop offset="100%" stop-color="#d2284b" />
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+
+    <!-- Ribbon Gradient -->
+    <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff5f82" />
+      <stop offset="100%" stop-color="#ff325a" />
+    </linearGradient>
+
+    <!-- Heart Locket Gradient -->
+    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5f82" />
+      <stop offset="100%" stop-color="#eb2d50" />
+    </linearGradient>
+
+    <!-- Pages Gradient -->
+    <linearGradient id="pagesGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e1dcd4" />
+      <stop offset="100%" stop-color="#fffdf8" />
+    </linearGradient>
+
+    <!-- Soft Glow Filter -->
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="16" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- Background Base -->
+  <!-- 1. Background Canvas -->
   <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
-  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#252932" stroke-width="2" />
 
-  <!-- Book / Journal Body -->
-  <g transform="translate(106, 96)">
-    <!-- Back Cover Shadow & Edge -->
-    <rect x="24" y="16" width="256" height="304" rx="24" fill="#0f1115" stroke="#1f232b" stroke-width="4" />
-    
-    <!-- Main Book Cover -->
-    <rect x="12" y="8" width="256" height="304" rx="24" fill="url(#pageGrad)" stroke="#363b47" stroke-width="3" />
-    
-    <!-- Spine binding -->
-    <rect x="12" y="8" width="40" height="304" rx="20" fill="url(#accentGrad)" filter="url(#glow)" opacity="0.9" />
-    
-    <!-- Bookmark ribbon -->
-    <path d="M190 8 L190 120 L206 102 L222 120 L222 8 Z" fill="#ff6363" />
+  <!-- Ambient Rose Glow behind book -->
+  <circle cx="270" cy="256" r="150" fill="#ff5078" opacity="0.16" filter="url(#softGlow)" />
 
-    <!-- Notebook Lined Details -->
-    <line x1="84" y1="80" x2="228" y2="80" stroke="#ff6363" stroke-width="5" stroke-linecap="round" opacity="0.9" />
-    <line x1="84" y1="130" x2="228" y2="130" stroke="#4a505e" stroke-width="4" stroke-linecap="round" />
-    <line x1="84" y1="180" x2="228" y2="180" stroke="#4a505e" stroke-width="4" stroke-linecap="round" />
-    <line x1="84" y1="230" x2="170" y2="230" stroke="#4a505e" stroke-width="4" stroke-linecap="round" />
+  <!-- 2. Shadow under Book -->
+  <rect x="118" y="88" width="286" height="354" rx="26" fill="#000000" opacity="0.55" />
 
-    <!-- Checkmark Badge on Note (Planning / Tasks) -->
-    <circle cx="216" cy="230" r="22" fill="#ff5252" filter="url(#glow)" />
-    <polyline points="208 230 214 236 226 223" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- 3. Paper Pages Edge (Right side) -->
+  <rect x="120" y="78" width="280" height="350" rx="22" fill="url(#pagesGrad)" />
+  <!-- Page line marks -->
+  <g stroke="#a0968c" stroke-width="1.2" opacity="0.4">
+    <line x1="384" y1="110" x2="396" y2="110" />
+    <line x1="384" y1="130" x2="396" y2="130" />
+    <line x1="384" y1="150" x2="396" y2="150" />
+    <line x1="384" y1="170" x2="396" y2="170" />
+    <line x1="384" y1="190" x2="396" y2="190" />
+    <line x1="384" y1="210" x2="396" y2="210" />
+    <line x1="384" y1="230" x2="396" y2="230" />
+    <line x1="384" y1="250" x2="396" y2="250" />
+    <line x1="384" y1="270" x2="396" y2="270" />
+    <line x1="384" y1="290" x2="396" y2="290" />
+    <line x1="384" y1="310" x2="396" y2="310" />
+    <line x1="384" y1="330" x2="396" y2="330" />
+    <line x1="384" y1="350" x2="396" y2="350" />
+    <line x1="384" y1="370" x2="396" y2="370" />
+    <line x1="384" y1="390" x2="396" y2="390" />
   </g>
+
+  <!-- 4. Front Cover -->
+  <rect x="105" y="72" width="284" height="358" rx="24" fill="url(#coverGrad)" stroke="#ff738c" stroke-width="2.5" stroke-opacity="0.75" />
+
+  <!-- 5. Velvet/Leather Spine -->
+  <path d="M 129 72 A 24 24 0 0 0 105 96 L 105 406 A 24 24 0 0 0 129 430 L 155 430 L 155 72 Z" fill="url(#spineGrad)" />
+  <!-- Spine golden stitch bands -->
+  <g stroke="#ffe182" stroke-width="2.5" stroke-linecap="round" opacity="0.9">
+    <line x1="112" y1="120" x2="150" y2="120" />
+    <line x1="112" y1="210" x2="150" y2="210" />
+    <line x1="112" y1="290" x2="150" y2="290" />
+    <line x1="112" y1="380" x2="150" y2="380" />
+  </g>
+
+  <!-- 6. Silk Bookmark Ribbon -->
+  <polygon points="258,72 288,72 288,225 273,206 258,225" fill="url(#ribbonGrad)" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4" />
+
+  <!-- 7. Embossed Notebook Lines -->
+  <g stroke="#ff7891" stroke-width="3" stroke-linecap="round" opacity="0.28">
+    <line x1="180" y1="150" x2="360" y2="150" />
+    <line x1="180" y1="185" x2="360" y2="185" />
+    <line x1="180" y1="335" x2="360" y2="335" />
+    <line x1="180" y1="370" x2="320" y2="370" />
+  </g>
+
+  <!-- 8. Centerpiece - Heart Locket (Thoughts of Zaremka) -->
+  <circle cx="270" cy="258" r="48" fill="#ff4b6e" opacity="0.25" filter="url(#softGlow)" />
+  
+  <!-- Heart SVG Path -->
+  <path d="M 270 298 C 235 270 226 244 226 226 C 226 206 242 192 260 192 C 270 192 278 198 270 206 C 262 198 270 192 280 192 C 298 192 314 206 314 226 C 314 244 305 270 270 298 Z" 
+        fill="url(#heartGrad)" stroke="#ffe1a0" stroke-width="3.5" stroke-linejoin="round" />
+
+  <!-- Heart Keyhole (Gold) -->
+  <circle cx="270" cy="235" r="5" fill="#fff0c8" />
+  <polygon points="266,238 274,238 276,252 264,252" fill="#fff0c8" />
+
+  <!-- 9. Magic Sparkle Stars (✦) -->
+  <path d="M 355 110 L 358 122 L 370 125 L 358 128 L 355 140 L 352 128 L 340 125 L 352 122 Z" fill="#ffe6a0" />
+  <path d="M 378 142 L 380 148 L 386 150 L 380 152 L 378 158 L 376 152 L 370 150 L 376 148 Z" fill="#fff5d2" opacity="0.85" />
+  <path d="M 185 235 L 187 242 L 194 244 L 187 246 L 185 253 L 183 246 L 176 244 L 183 242 Z" fill="#ffe1b4" opacity="0.75" />
 </svg>
