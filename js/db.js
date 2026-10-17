@@ -1,14 +1,48 @@
 /**
  * ============================================================================
- * Diary & Planner - IndexedDB Database Engine
+ * Мысли Заремки - IndexedDB Database Engine & Cloud Sync Interface
  * High-performance, offline-first local storage for iOS Safari & Web
  * ============================================================================
  */
 
-const DB_NAME = 'diary_mindflow_db';
+const DB_NAME = 'zaremka_diary_db';
 const DB_VERSION = 1;
 
 let dbInstance = null;
+
+// Deleted tombstones to sync deletions across devices
+const STORAGE_KEY_DEL_THOUGHTS = 'mz_deleted_thoughts';
+const STORAGE_KEY_DEL_TASKS = 'mz_deleted_tasks';
+
+function getDeletedThoughtIds() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_DEL_THOUGHTS) || '[]');
+  } catch { return []; }
+}
+
+function trackDeletedThoughtId(id) {
+  if (!id) return;
+  const list = getDeletedThoughtIds();
+  if (!list.includes(id)) {
+    list.push(id);
+    localStorage.setItem(STORAGE_KEY_DEL_THOUGHTS, JSON.stringify(list.slice(-500)));
+  }
+}
+
+function getDeletedTaskIds() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_DEL_TASKS) || '[]');
+  } catch { return []; }
+}
+
+function trackDeletedTaskId(id) {
+  if (!id) return;
+  const list = getDeletedTaskIds();
+  if (!list.includes(id)) {
+    list.push(id);
+    localStorage.setItem(STORAGE_KEY_DEL_TASKS, JSON.stringify(list.slice(-500)));
+  }
+}
 
 /**
  * Open or initialize IndexedDB
@@ -70,7 +104,7 @@ async function getAllThoughts() {
   const db = await openDB();
   if (!db) {
     try {
-      return JSON.parse(localStorage.getItem('diary_thoughts') || '[]');
+      return JSON.parse(localStorage.getItem('mz_thoughts') || '[]');
     } catch (_) { return []; }
   }
 
@@ -83,7 +117,7 @@ async function getAllThoughts() {
   });
 }
 
-async function saveThought(thought) {
+async function saveThought(thought, skipSyncTrigger = false) {
   if (!thought.id) {
     thought.id = 'th_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   }
@@ -98,7 +132,8 @@ async function saveThought(thought) {
     const idx = items.findIndex(t => t.id === thought.id);
     if (idx >= 0) items[idx] = thought;
     else items.unshift(thought);
-    localStorage.setItem('diary_thoughts', JSON.stringify(items));
+    localStorage.setItem('mz_thoughts', JSON.stringify(items));
+    if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
     return thought;
   }
 
@@ -106,16 +141,21 @@ async function saveThought(thought) {
     const tx = db.transaction('thoughts', 'readwrite');
     const store = tx.objectStore('thoughts');
     const req = store.put(thought);
-    req.onsuccess = () => resolve(thought);
+    req.onsuccess = () => {
+      if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
+      resolve(thought);
+    };
     req.onerror = (e) => reject(e);
   });
 }
 
-async function deleteThought(id) {
+async function deleteThought(id, skipSyncTrigger = false) {
+  trackDeletedThoughtId(id);
   const db = await openDB();
   if (!db) {
     const items = (await getAllThoughts()).filter(t => t.id !== id);
-    localStorage.setItem('diary_thoughts', JSON.stringify(items));
+    localStorage.setItem('mz_thoughts', JSON.stringify(items));
+    if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
     return true;
   }
 
@@ -123,7 +163,10 @@ async function deleteThought(id) {
     const tx = db.transaction('thoughts', 'readwrite');
     const store = tx.objectStore('thoughts');
     const req = store.delete(id);
-    req.onsuccess = () => resolve(true);
+    req.onsuccess = () => {
+      if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
+      resolve(true);
+    };
     req.onerror = (e) => reject(e);
   });
 }
@@ -135,7 +178,7 @@ async function getAllTasks() {
   const db = await openDB();
   if (!db) {
     try {
-      return JSON.parse(localStorage.getItem('diary_tasks') || '[]');
+      return JSON.parse(localStorage.getItem('mz_tasks') || '[]');
     } catch (_) { return []; }
   }
 
@@ -148,7 +191,7 @@ async function getAllTasks() {
   });
 }
 
-async function saveTask(task) {
+async function saveTask(task, skipSyncTrigger = false) {
   if (!task.id) {
     task.id = 'tk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   }
@@ -163,7 +206,8 @@ async function saveTask(task) {
     const idx = items.findIndex(t => t.id === task.id);
     if (idx >= 0) items[idx] = task;
     else items.unshift(task);
-    localStorage.setItem('diary_tasks', JSON.stringify(items));
+    localStorage.setItem('mz_tasks', JSON.stringify(items));
+    if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
     return task;
   }
 
@@ -171,16 +215,21 @@ async function saveTask(task) {
     const tx = db.transaction('tasks', 'readwrite');
     const store = tx.objectStore('tasks');
     const req = store.put(task);
-    req.onsuccess = () => resolve(task);
+    req.onsuccess = () => {
+      if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
+      resolve(task);
+    };
     req.onerror = (e) => reject(e);
   });
 }
 
-async function deleteTask(id) {
+async function deleteTask(id, skipSyncTrigger = false) {
+  trackDeletedTaskId(id);
   const db = await openDB();
   if (!db) {
     const items = (await getAllTasks()).filter(t => t.id !== id);
-    localStorage.setItem('diary_tasks', JSON.stringify(items));
+    localStorage.setItem('mz_tasks', JSON.stringify(items));
+    if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
     return true;
   }
 
@@ -188,9 +237,92 @@ async function deleteTask(id) {
     const tx = db.transaction('tasks', 'readwrite');
     const store = tx.objectStore('tasks');
     const req = store.delete(id);
-    req.onsuccess = () => resolve(true);
+    req.onsuccess = () => {
+      if (!skipSyncTrigger && window.triggerBackgroundSync) window.triggerBackgroundSync();
+      resolve(true);
+    };
     req.onerror = (e) => reject(e);
   });
+}
+
+/* ==========================================================================
+   CLOUD TWO-WAY MERGE LOGIC (Phone <-> PC)
+   ========================================================================== */
+async function mergeCloudThoughts(remoteThoughts, remoteDeletedIds = []) {
+  if (!Array.isArray(remoteThoughts)) return 0;
+  const localDeleted = getDeletedThoughtIds();
+  const allDeleted = new Set([...localDeleted, ...remoteDeletedIds]);
+
+  const localThoughts = await getAllThoughts();
+  const localMap = new Map();
+  localThoughts.forEach(t => localMap.set(t.id, t));
+
+  let changesCount = 0;
+
+  // Process remote items
+  for (const remote of remoteThoughts) {
+    if (!remote || !remote.id) continue;
+    if (allDeleted.has(remote.id)) {
+      if (localMap.has(remote.id)) {
+        await deleteThought(remote.id, true);
+        changesCount++;
+      }
+      continue;
+    }
+
+    const local = localMap.get(remote.id);
+    if (!local) {
+      await saveThought(remote, true);
+      changesCount++;
+    } else {
+      const remoteTime = new Date(remote.updatedAt || remote.createdAt || 0).getTime();
+      const localTime = new Date(local.updatedAt || local.createdAt || 0).getTime();
+      if (remoteTime > localTime) {
+        await saveThought(remote, true);
+        changesCount++;
+      }
+    }
+  }
+
+  return changesCount;
+}
+
+async function mergeCloudTasks(remoteTasks, remoteDeletedIds = []) {
+  if (!Array.isArray(remoteTasks)) return 0;
+  const localDeleted = getDeletedTaskIds();
+  const allDeleted = new Set([...localDeleted, ...remoteDeletedIds]);
+
+  const localTasks = await getAllTasks();
+  const localMap = new Map();
+  localTasks.forEach(t => localMap.set(t.id, t));
+
+  let changesCount = 0;
+
+  for (const remote of remoteTasks) {
+    if (!remote || !remote.id) continue;
+    if (allDeleted.has(remote.id)) {
+      if (localMap.has(remote.id)) {
+        await deleteTask(remote.id, true);
+        changesCount++;
+      }
+      continue;
+    }
+
+    const local = localMap.get(remote.id);
+    if (!local) {
+      await saveTask(remote, true);
+      changesCount++;
+    } else {
+      const remoteTime = new Date(remote.updatedAt || remote.createdAt || 0).getTime();
+      const localTime = new Date(local.updatedAt || local.createdAt || 0).getTime();
+      if (remoteTime > localTime) {
+        await saveTask(remote, true);
+        changesCount++;
+      }
+    }
+  }
+
+  return changesCount;
 }
 
 /* ==========================================================================
@@ -201,7 +333,7 @@ async function exportAllData() {
   const tasks = await getAllTasks();
   return {
     version: 1,
-    appName: 'Diary',
+    appName: 'Мысли Заремки',
     exportDate: new Date().toISOString(),
     thoughts,
     tasks
@@ -215,16 +347,19 @@ async function importAllData(data) {
 
   if (Array.isArray(data.thoughts)) {
     for (const t of data.thoughts) {
-      await saveThought(t);
+      await saveThought(t, true);
     }
   }
 
   if (Array.isArray(data.tasks)) {
     for (const task of data.tasks) {
-      await saveTask(task);
+      await saveTask(task, true);
     }
   }
 
+  if (window.triggerBackgroundSync) {
+    window.triggerBackgroundSync();
+  }
   return true;
 }
 
@@ -237,6 +372,10 @@ window.DiaryDB = {
   getAllTasks,
   saveTask,
   deleteTask,
+  getDeletedThoughtIds,
+  getDeletedTaskIds,
+  mergeCloudThoughts,
+  mergeCloudTasks,
   exportAllData,
   importAllData
 };
