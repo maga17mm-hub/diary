@@ -1,12 +1,19 @@
-const CACHE_NAME = 'diary-v1.0';
+const CACHE_NAME = 'zaremka-diary-v1.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './css/style.css',
+  './css/style.css?v=1.1',
   './js/db.js',
+  './js/db.js?v=1.1',
+  './js/auth.js',
+  './js/auth.js?v=1.1',
   './js/thoughts.js',
+  './js/thoughts.js?v=1.1',
   './js/tasks.js',
+  './js/tasks.js?v=1.1',
   './js/app.js',
+  './js/app.js?v=1.1',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
